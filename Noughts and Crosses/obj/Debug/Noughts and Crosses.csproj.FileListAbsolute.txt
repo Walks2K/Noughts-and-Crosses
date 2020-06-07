@@ -1,0 +1,14 @@
+C:\Users\Walks\source\repos\Noughts and Crosses\Noughts and Crosses\bin\Debug\Noughts and Crosses.exe.config
+C:\Users\Walks\source\repos\Noughts and Crosses\Noughts and Crosses\bin\Debug\Noughts and Crosses.exe
+C:\Users\Walks\source\repos\Noughts and Crosses\Noughts and Crosses\bin\Debug\Noughts and Crosses.pdb
+C:\Users\Walks\source\repos\Noughts and Crosses\Noughts and Crosses\obj\Debug\Noughts and Crosses.csprojAssemblyReference.cache
+C:\Users\Walks\source\repos\Noughts and Crosses\Noughts and Crosses\obj\Debug\MainWindow.g.cs
+C:\Users\Walks\source\repos\Noughts and Crosses\Noughts and Crosses\obj\Debug\App.g.cs
+C:\Users\Walks\source\repos\Noughts and Crosses\Noughts and Crosses\obj\Debug\Noughts and Crosses_MarkupCompile.cache
+C:\Users\Walks\source\repos\Noughts and Crosses\Noughts and Crosses\obj\Debug\Noughts and Crosses_MarkupCompile.lref
+C:\Users\Walks\source\repos\Noughts and Crosses\Noughts and Crosses\obj\Debug\MainWindow.baml
+C:\Users\Walks\source\repos\Noughts and Crosses\Noughts and Crosses\obj\Debug\Noughts and Crosses.g.resources
+C:\Users\Walks\source\repos\Noughts and Crosses\Noughts and Crosses\obj\Debug\Noughts_and_Crosses.Properties.Resources.resources
+C:\Users\Walks\source\repos\Noughts and Crosses\Noughts and Crosses\obj\Debug\Noughts and Crosses.csproj.GenerateResource.cache
+C:\Users\Walks\source\repos\Noughts and Crosses\Noughts and Crosses\obj\Debug\Noughts and Crosses.exe
+C:\Users\Walks\source\repos\Noughts and Crosses\Noughts and Crosses\obj\Debug\Noughts and Crosses.pdb
