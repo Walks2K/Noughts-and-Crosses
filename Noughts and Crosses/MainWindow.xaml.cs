@@ -343,11 +343,11 @@ namespace Noughts_and_Crosses
 
             // Return score if maximizer has won
             if (score == 10)
-                return score;
+                return score - depth;
 
             // Return score if minimizer has won
             if (score == -10)
-                return score;
+                return score + depth;
 
             // Return 0 if no moves left and no winner
             if (!mResults.Cast<MarkType>().Any(result => result == MarkType.Free))
@@ -372,7 +372,7 @@ namespace Noughts_and_Crosses
                             board[i, j] = IsNought ? MarkType.Nought : MarkType.Cross;
 
                             // Call minimax recursively and choose maximum value
-                            Max = Math.Max(Max, MiniMax(board, depth + 1, !IsMax, IsNought, Alpha, Beta));
+                            Max = Math.Max(Max + depth, MiniMax(board, depth + 1, !IsMax, IsNought, Alpha, Beta));
 
                             // Undo move
                             board[i, j] = MarkType.Free;
@@ -405,7 +405,7 @@ namespace Noughts_and_Crosses
                             board[i, j] = IsNought ? MarkType.Cross : MarkType.Nought;
 
                             // Call minimax recursively and choose minimum value
-                            Min = Math.Min(Min, MiniMax(board, depth + 1, !IsMax, IsNought, Alpha, Beta));
+                            Min = Math.Min(Min - depth, MiniMax(board, depth + 1, !IsMax, IsNought, Alpha, Beta));
 
                             // Undo move
                             board[i, j] = MarkType.Free;
