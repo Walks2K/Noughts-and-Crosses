@@ -116,7 +116,7 @@ namespace Noughts_and_Crosses
             CheckForWinner();
 
             // Evaluate board if AI turn
-            int AIScore = EvaluateBoard();
+            int AIScore = EvaluateBoard(mResults);
             MessageBox.Show(AIScore.ToString());
         }
 
@@ -224,18 +224,19 @@ namespace Noughts_and_Crosses
         /// <summary>
         /// Evaluate score of current board (used for min-maxing)
         /// </summary>
-        private int EvaluateBoard()
+        private int EvaluateBoard(MarkType[] board)
         {
-            var mResultsEvalute = new MarkType[9];
+            if (board.Length != 9)
+                return -10000;
 
             // Check for horizontal win
             for (int index = 0; index < 3; index++)
             {
-                if (mResultsEvalute[0 + (index * 3)] != MarkType.Free && (mResultsEvalute[0 + (index * 3)] & mResultsEvalute[1 + (index * 3)] & mResultsEvalute[2 + (index * 3)]) == mResultsEvalute[0 + (index * 3)])
+                if (board[0 + (index * 3)] != MarkType.Free && (board[0 + (index * 3)] & board[1 + (index * 3)] & board[2 + (index * 3)]) == board[0 + (index * 3)])
                 {
-                    if (mResultsEvalute[0 + (index * 3)] == MarkType.Nought)
+                    if (board[0 + (index * 3)] == MarkType.Nought)
                         return +10;
-                    else if (mResultsEvalute[0 + (index * 3)] == MarkType.Cross)
+                    else if (board[0 + (index * 3)] == MarkType.Cross)
                         return -10;
                 }
             }
@@ -243,28 +244,28 @@ namespace Noughts_and_Crosses
             // Check for vertical win
             for (int index = 0; index < 3; index++)
             {
-                if (mResultsEvalute[0 + (index)] != MarkType.Free && (mResultsEvalute[0 + (index)] & mResultsEvalute[3 + (index)] & mResultsEvalute[6 + (index)]) == mResultsEvalute[0 + (index)])
+                if (board[0 + (index)] != MarkType.Free && (board[0 + (index)] & board[3 + (index)] & board[6 + (index)]) == board[0 + (index)])
                 {
-                    if (mResultsEvalute[0 + (index)] == MarkType.Nought)
+                    if (board[0 + (index)] == MarkType.Nought)
                         return +10;
-                    else if (mResultsEvalute[0 + (index)] == MarkType.Cross)
+                    else if (board[0 + (index)] == MarkType.Cross)
                         return -10;
                 }
             }
 
             // Check for diagonal win
-            if (mResultsEvalute[0] != MarkType.Free && (mResultsEvalute[0] & mResultsEvalute[4] & mResultsEvalute[8]) == mResultsEvalute[0])
+            if (board[0] != MarkType.Free && (board[0] & board[4] & board[8]) == board[0])
             {
-                if (mResultsEvalute[0] == MarkType.Nought)
+                if (board[0] == MarkType.Nought)
                     return +10;
-                else if (mResultsEvalute[0] == MarkType.Cross)
+                else if (board[0] == MarkType.Cross)
                     return -10;
             }
-            else if (mResultsEvalute[2] != MarkType.Free && (mResultsEvalute[2] & mResultsEvalute[4] & mResultsEvalute[6]) == mResultsEvalute[2])
+            else if (board[2] != MarkType.Free && (board[2] & board[4] & board[6]) == board[2])
             {
-                if (mResultsEvalute[2] == MarkType.Nought)
+                if (board[2] == MarkType.Nought)
                     return +10;
-                else if (mResultsEvalute[2] == MarkType.Cross)
+                else if (board[2] == MarkType.Cross)
                     return -10;
             }
 
