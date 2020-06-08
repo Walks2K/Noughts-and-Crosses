@@ -85,7 +85,7 @@ namespace Noughts_and_Crosses
             // Make sure game isn't finished
             mGameEnded = false;
 
-            if (mAIFirst)
+            if (mAIFirst && mGameType != GameTypes.AIVersusAI)
             {
                 Move bestMove = FindBestMove(mResults, true);
                 mResults[bestMove.col, bestMove.row] = MarkType.Nought;
@@ -402,6 +402,7 @@ namespace Noughts_and_Crosses
         /// <returns></returns>
         private Move FindBestMove(MarkType[,] board, bool IsNought)
         {
+            // Init best values
             int bestVal = -1000;
             Move bestMove = new Move
             {
@@ -417,14 +418,19 @@ namespace Noughts_and_Crosses
                 {
                     if (board[i,j] == MarkType.Free)
                     {
+                        // Simulate the move
                         board[i, j] = IsNought ? MarkType.Nought : MarkType.Cross;
 
+                        // Run min max until best move is found
                         int moveVal = MiniMax(board, 0, false, !mPlayer1Turn);
 
+                        // Undo move
                         board[i, j] = MarkType.Free;
 
+                        // Check if min max value is better than bestVal so far
                         if (moveVal > bestVal)
                         {
+                            // Update bestMove values and bestVal to match
                             bestMove.col = i;
                             bestMove.row = j;
                             bestVal = moveVal;
@@ -432,7 +438,7 @@ namespace Noughts_and_Crosses
                     }
                 }
             }
-
+            // Return the best move
             return bestMove;
         }
         /// <summary>
@@ -442,9 +448,11 @@ namespace Noughts_and_Crosses
         /// <param name="e"></param>
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            // Cast sender to combo box
             var combobox = (ComboBox)sender;
-
+            // Update game type to match selection
             mGameType = (GameTypes)combobox.SelectedIndex;
+            // Start a new game
             NewGameAsync();
         }
 
@@ -455,8 +463,11 @@ namespace Noughts_and_Crosses
         /// <param name="e"></param>
         private void AIToggle_Changed(object sender, RoutedEventArgs e)
         {
+            // Cast sender to checkbox
             var checkbox = (CheckBox)sender;
+            // Set AI first variable to match checkbox
             mAIFirst = (bool)checkbox.IsChecked;
+            // Start a new game
             NewGameAsync();
         }
     }
