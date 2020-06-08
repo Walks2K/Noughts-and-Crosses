@@ -16,7 +16,7 @@ namespace Noughts_and_Crosses
         /// <summary>
         /// Hold the current results of the cells in the active game
         /// </summary>
-        private MarkType[] mResults;
+        private MarkType[,] mResults;
 
         /// <summary>
         /// True if it is player 1's turn (X) or player 2's turn (O)
@@ -27,6 +27,11 @@ namespace Noughts_and_Crosses
         /// True if the game has ended
         /// </summary>
         private bool mGameEnded;
+
+        /// <summary>
+        /// True if AI should move first
+        /// </summary>
+        private bool mAIFirst;
         #endregion
 
         #region Constructor
@@ -49,11 +54,14 @@ namespace Noughts_and_Crosses
         private void NewGame()
         {
             // Create a new blank array of free cells
-            mResults = new MarkType[9];
+            mResults = new MarkType[3, 3];
 
-            for (int i = 0; i < mResults.Length; i++)
+            for (int i = 0; i < mResults.GetLength(0); i++)
             {
-                mResults[i] = MarkType.Free;
+                for (int j = 0; j < mResults.GetLength(1); j++)
+                {
+                    mResults[i, j] = MarkType.Free;
+                }
             }
 
             // Ensure player 1 is active turn
@@ -70,6 +78,18 @@ namespace Noughts_and_Crosses
 
             // Make sure game isn't finished
             mGameEnded = false;
+
+            // Toggle AI first move
+            mAIFirst = false;
+
+            if (mAIFirst)
+            {
+                Move bestMove = FindBestMove(mResults);
+                mResults[bestMove.col, bestMove.row] = MarkType.Nought;
+                var AIMoveButton = Container.Children.Cast<Button>().First(ButtonToMove => Grid.GetRow(ButtonToMove) == bestMove.row && Grid.GetColumn(ButtonToMove) == bestMove.col);
+                AIMoveButton.Foreground = Brushes.Red;
+                AIMoveButton.Content = "O";
+            }
         }
 
         /// <summary>
@@ -93,14 +113,12 @@ namespace Noughts_and_Crosses
             var column = Grid.GetColumn(button);
             var row = Grid.GetRow(button);
 
-            var index = column + (row * 3);
-
             // Return if cell isn't free
-            if (mResults[index] != MarkType.Free)
+            if (mResults[column, row] != MarkType.Free)
                 return;
 
             // Set the cell value based on turn
-            mResults[index] = mPlayer1Turn ? MarkType.Cross : MarkType.Nought;
+            mResults[column, row] = mPlayer1Turn ? MarkType.Cross : MarkType.Nought;
 
             // Set button content to result
             button.Content = mPlayer1Turn ? "X" : "O";
@@ -116,8 +134,17 @@ namespace Noughts_and_Crosses
             CheckForWinner();
 
             // Evaluate board if AI turn
-            int AIScore = EvaluateBoard(mResults);
-            MessageBox.Show(AIScore.ToString());
+            if (!mPlayer1Turn && !mGameEnded)
+            {
+                Move bestMove = FindBestMove(mResults);
+                mResults[bestMove.col, bestMove.row] = MarkType.Nought;
+                var AIMoveButton = Container.Children.Cast<Button>().First(ButtonToMove => Grid.GetRow(ButtonToMove) == bestMove.row && Grid.GetColumn(ButtonToMove) == bestMove.col);
+                AIMoveButton.Foreground = Brushes.Red;
+                AIMoveButton.Content = "O";
+                mPlayer1Turn = !mPlayer1Turn;
+
+                CheckForWinner();
+            }
         }
 
         /// <summary>
@@ -126,15 +153,15 @@ namespace Noughts_and_Crosses
         private void CheckForWinner()
         {
             // Check for horizontal win
-            for (int index = 0; index < 3; index++)
+            for (int row = 0; row < 3; row++)
             {
-                if (mResults[0 + (index * 3)] != MarkType.Free && (mResults[0 + (index * 3)] & mResults[1 + (index * 3)] & mResults[2 + (index * 3)]) == mResults[0 + (index * 3)])
+                if (mResults[0, row] != MarkType.Free && (mResults[0, row] & mResults[1, row] & mResults[2, row]) == mResults[0, row])
                 {
                     // Game has ended
                     mGameEnded = true;
 
                     // Highlight winning cells in green
-                    switch (index)
+                    switch (row)
                     {
                         case 0:
                             {
@@ -156,17 +183,17 @@ namespace Noughts_and_Crosses
                     }
                 }
             }
-            
+
             // Check for vertical win
-            for (int index = 0; index < 3; index++)
+            for (int column = 0; column < 3; column++)
             {
-                if (mResults[0 + (index)] != MarkType.Free && (mResults[0 + (index)] & mResults[3 + (index)] & mResults[6 + (index)]) == mResults[0 + (index)])
+                if (mResults[column, 0] != MarkType.Free && (mResults[column, 0] & mResults[column, 1] & mResults[column, 2]) == mResults[column, 0])
                 {
                     // Game has ended
                     mGameEnded = true;
 
                     // Highlight winning cells in green
-                    switch (index)
+                    switch (column)
                     {
                         case 0:
                             {
@@ -190,7 +217,7 @@ namespace Noughts_and_Crosses
             }
 
             // Check for diagonal win
-            if (mResults[0] != MarkType.Free && (mResults[0] & mResults[4] & mResults[8]) == mResults[0])
+            if (mResults[0, 0] != MarkType.Free && (mResults[0, 0] & mResults[1, 1] & mResults[2, 2]) == mResults[0, 0])
             {
                 // Game has ended
                 mGameEnded = true;
@@ -198,7 +225,7 @@ namespace Noughts_and_Crosses
                 // Highlight winning cells in green
                 Button0_0.Background = Button1_1.Background = Button2_2.Background = Brushes.Green;
             }
-            else if (mResults[2] != MarkType.Free && (mResults[2] & mResults[4] & mResults[6]) == mResults[2])
+            else if (mResults[2, 0] != MarkType.Free && (mResults[2, 0] & mResults[1, 1] & mResults[0, 2]) == mResults[2, 0])
             {
                 // Game has ended
                 mGameEnded = true;
@@ -208,12 +235,12 @@ namespace Noughts_and_Crosses
             }
 
             // Check for no winner and full board
-            if (!mResults.Any(result => result == MarkType.Free))
+            if (!mResults.Cast<MarkType>().Any(result => result == MarkType.Free))
             {
                 // Game ended
                 mGameEnded = true;
 
-                // Trurn all cells orange
+                // Turn all cells orange
                 Container.Children.Cast<Button>().ToList().ForEach(button =>
                 {
                     button.Background = Brushes.Orange;
@@ -224,53 +251,170 @@ namespace Noughts_and_Crosses
         /// <summary>
         /// Evaluate score of current board (used for min-maxing)
         /// </summary>
-        private int EvaluateBoard(MarkType[] board)
+        private int EvaluateBoard(MarkType[,] board, bool IsNought)
         {
-            if (board.Length != 9)
-                return -10000;
-
             // Check for horizontal win
-            for (int index = 0; index < 3; index++)
+            for (int row = 0; row < 3; row++)
             {
-                if (board[0 + (index * 3)] != MarkType.Free && (board[0 + (index * 3)] & board[1 + (index * 3)] & board[2 + (index * 3)]) == board[0 + (index * 3)])
+                if (board[0, row] != MarkType.Free && (board[0, row] & board[1, row] & board[2, row]) == board[0, row])
                 {
-                    if (board[0 + (index * 3)] == MarkType.Nought)
+                    if ((board[0, row] == MarkType.Nought && IsNought) || (board[0,row] == MarkType.Cross && !IsNought))
                         return +10;
-                    else if (board[0 + (index * 3)] == MarkType.Cross)
+                    else if ((board[0, row] == MarkType.Cross && IsNought) || (board[0,row] == MarkType.Nought && !IsNought))
                         return -10;
                 }
             }
 
             // Check for vertical win
-            for (int index = 0; index < 3; index++)
+            for (int column = 0; column < 3; column++)
             {
-                if (board[0 + (index)] != MarkType.Free && (board[0 + (index)] & board[3 + (index)] & board[6 + (index)]) == board[0 + (index)])
+                if (board[column, 0] != MarkType.Free && (board[column, 0] & board[column, 1] & board[column, 2]) == board[column, 0])
                 {
-                    if (board[0 + (index)] == MarkType.Nought)
+                    if ((board[column, 0] == MarkType.Nought && IsNought) || (board[column, 0] == MarkType.Cross && !IsNought))
                         return +10;
-                    else if (board[0 + (index)] == MarkType.Cross)
+                    else if ((board[column, 0] == MarkType.Cross && IsNought) || (board[column, 0] == MarkType.Nought && !IsNought))
                         return -10;
                 }
             }
 
             // Check for diagonal win
-            if (board[0] != MarkType.Free && (board[0] & board[4] & board[8]) == board[0])
+            if (board[0,0] != MarkType.Free && (board[0,0] & board[1, 1] & board[2, 2]) == board[0,0])
             {
-                if (board[0] == MarkType.Nought)
+                if ((board[0, 0] == MarkType.Nought && IsNought) || (board[0, 0] == MarkType.Cross && !IsNought))
                     return +10;
-                else if (board[0] == MarkType.Cross)
+                else if ((board[0, 0] == MarkType.Cross && IsNought) || (board[0, 0] == MarkType.Nought && !IsNought))
                     return -10;
             }
-            else if (board[2] != MarkType.Free && (board[2] & board[4] & board[6]) == board[2])
+            else if (board[2,0] != MarkType.Free && (board[2,0] & board[1,1] & board[0,2]) == board[2,0])
             {
-                if (board[2] == MarkType.Nought)
+                if ((board[2, 0] == MarkType.Nought && IsNought) || (board[2, 0] == MarkType.Cross && !IsNought))
                     return +10;
-                else if (board[2] == MarkType.Cross)
+                else if ((board[2, 0] == MarkType.Cross && IsNought) || (board[2, 0] == MarkType.Nought && !IsNought))
                     return -10;
             }
 
             // If no winning/losing position is found return 0
             return 0;
+        }
+
+        /// <summary>
+        /// Mini max algorithm to determine best move by simulating moves on board and evaluating outcomes
+        /// </summary>
+        /// <param name="board"></param>
+        /// <param name="depth"></param>
+        /// <param name="IsMax"></param>
+        /// <returns></returns>
+        private int MiniMax(MarkType[,] board, int depth, Boolean IsMax)
+        {
+            int score = EvaluateBoard(board, true);
+
+            // Return score if maximizer has won
+            if (score == 10)
+                return score;
+
+            // Return score if minimizer has won
+            if (score == -10)
+                return score;
+
+            // Return 0 if no moves left and no winner
+            if (!mResults.Cast<MarkType>().Any(result => result == MarkType.Free))
+            {
+                return 0;
+            }
+
+            // Check if maximizers move
+            if (IsMax)
+            {
+                int best = -1000;
+
+                // Traverse all cells
+                for (int i = 0; i < 3; i++)
+                {
+                    for (int j = 0; j < 3; j++)
+                    {
+                        // Check if cell is empty
+                        if (board[i, j] == MarkType.Free)
+                        {
+                            // Simulate move
+                            board[i, j] = MarkType.Nought;
+
+                            // Call minimax recursively and choose maximum value
+                            best = Math.Max(best, MiniMax(board, depth + 1, !IsMax));
+
+                            // Undo move
+                            board[i, j] = MarkType.Free;
+                        }
+                    }
+                }
+                return best;
+            }
+            // Minimizers move
+            else
+            {
+                int best = 1000;
+
+                // Traverse all cells
+                for (int i = 0; i < 3; i++)
+                {
+                    for (int j = 0; j < 3; j++)
+                    {
+                        // Check if cell is empty
+                        if (board[i,j] == MarkType.Free)
+                        {
+                            // Simulate move
+                            board[i, j] = MarkType.Cross;
+
+                            // Call minimax recursively and choose minimum value
+                            best = Math.Min(best, MiniMax(board, depth + 1, !IsMax));
+
+                            // Undo move
+                            board[i, j] = MarkType.Free;
+                        }
+                    }
+                }
+                return best;
+            }
+        }
+
+        /// <summary>
+        /// Finds the best move
+        /// </summary>
+        /// <param name="board"></param>
+        /// <returns></returns>
+        private Move FindBestMove(MarkType[,] board)
+        {
+            int bestVal = -1000;
+            Move bestMove = new Move
+            {
+                col = -1,
+                row = -1
+            };
+
+
+            // Traverse all cells, evaluate minimax for empty cells then return optimal value
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    if (board[i,j] == MarkType.Free)
+                    {
+                        board[i, j] = MarkType.Nought;
+
+                        int moveVal = MiniMax(board, 0, false);
+
+                        board[i, j] = MarkType.Free;
+
+                        if (moveVal > bestVal)
+                        {
+                            bestMove.col = i;
+                            bestMove.row = j;
+                            bestVal = moveVal;
+                        }
+                    }
+                }
+            }
+
+            return bestMove;
         }
     }
 }
