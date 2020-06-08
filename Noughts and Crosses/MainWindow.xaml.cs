@@ -85,7 +85,7 @@ namespace Noughts_and_Crosses
             // Make sure game isn't finished
             mGameEnded = false;
 
-            if (mAIFirst && mGameType != GameTypes.AIVersusAI)
+            if (mAIFirst && mGameType == GameTypes.PlayerVersusAI)
             {
                 Move bestMove = FindBestMove(mResults, true);
                 mResults[bestMove.col, bestMove.row] = MarkType.Nought;
