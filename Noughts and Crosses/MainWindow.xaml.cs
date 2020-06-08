@@ -87,9 +87,13 @@ namespace Noughts_and_Crosses
 
             if (mAIFirst && mGameType == GameTypes.PlayerVersusAI)
             {
+                // Find best move
                 Move bestMove = FindBestMove(mResults, true);
+                // Make move on board
                 mResults[bestMove.col, bestMove.row] = MarkType.Nought;
+                // Find button location of AI move
                 var AIMoveButton = Container.Children.Cast<Button>().First(ButtonToMove => Grid.GetRow(ButtonToMove) == bestMove.row && Grid.GetColumn(ButtonToMove) == bestMove.col);
+                // Update button colour + content
                 AIMoveButton.Foreground = Brushes.Red;
                 AIMoveButton.Content = "O";
             }
@@ -97,9 +101,13 @@ namespace Noughts_and_Crosses
             {
                 while (!mGameEnded)
                 {
+                    // Find best move
                     Move bestMove = FindBestMove(mResults, !mPlayer1Turn);
+                    // Make move on board
                     mResults[bestMove.col, bestMove.row] = !mPlayer1Turn ? MarkType.Nought : MarkType.Cross;
+                    // Find button location of AI move
                     var AIMoveButton = Container.Children.Cast<Button>().First(ButtonToMove => Grid.GetRow(ButtonToMove) == bestMove.row && Grid.GetColumn(ButtonToMove) == bestMove.col);
+                   // Update button colour + content
                     if (!mPlayer1Turn)           
                         AIMoveButton.Foreground = Brushes.Red;
                     AIMoveButton.Content = mPlayer1Turn ? "X" : "O";
