@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Noughts_and_Crosses"
         mc:Ignorable="d"
         ResizeMode="NoResize"
-        Title="Noughts and Crosses" Width="500" Height="500">
+        Title="Noughts and Crosses" Width="750" Height="500">
 
     <Window.Resources>
         <Style TargetType="Button">
@@ -15,30 +15,37 @@
             <Setter Property="FontSize" Value="72"/>
         </Style>
     </Window.Resources>
-    
-    <Grid x:Name="Container">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height ="*"/>
-            <RowDefinition Height ="*"/>
-            <RowDefinition Height ="*"/>
-        </Grid.RowDefinitions>
+    <Grid>
+        <Grid x:Name="Container" Width="471" HorizontalAlignment="Left">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height ="*"/>
+                <RowDefinition Height ="*"/>
+                <RowDefinition Height ="*"/>
+            </Grid.RowDefinitions>
 
-        <Button Click="Button_Click" x:Name="Button0_0" Grid.Column="0" Grid.Row="0"/>
-        <Button Click="Button_Click" x:Name="Button1_0" Grid.Column="1" Grid.Row="0"/>
-        <Button Click="Button_Click" x:Name="Button2_0" Grid.Column="2" Grid.Row="0"/> 
-        
-        <Button Click="Button_Click" x:Name="Button0_1" Grid.Column="0" Grid.Row="1"/>
-        <Button Click="Button_Click" x:Name="Button1_1" Grid.Column="1" Grid.Row="1"/>
-        <Button Click="Button_Click" x:Name="Button2_1" Grid.Column="2" Grid.Row="1"/>
+            <Button Click="Button_Click" x:Name="Button0_0" Grid.Column="0" Grid.Row="0"/>
+            <Button Click="Button_Click" x:Name="Button1_0" Grid.Column="1" Grid.Row="0"/>
+            <Button Click="Button_Click" x:Name="Button2_0" Grid.Column="2" Grid.Row="0"/>
 
-        <Button Click="Button_Click" x:Name="Button0_2" Grid.Column="0" Grid.Row="2"/>
-        <Button Click="Button_Click" x:Name="Button1_2" Grid.Column="1" Grid.Row="2"/>
-        <Button Click="Button_Click" x:Name="Button2_2" Grid.Column="2" Grid.Row="2"/>
+            <Button Click="Button_Click" x:Name="Button0_1" Grid.Column="0" Grid.Row="1"/>
+            <Button Click="Button_Click" x:Name="Button1_1" Grid.Column="1" Grid.Row="1"/>
+            <Button Click="Button_Click" x:Name="Button2_1" Grid.Column="2" Grid.Row="1"/>
+
+            <Button Click="Button_Click" x:Name="Button0_2" Grid.Column="0" Grid.Row="2"/>
+            <Button Click="Button_Click" x:Name="Button1_2" Grid.Column="1" Grid.Row="2"/>
+            <Button Click="Button_Click" x:Name="Button2_2" Grid.Column="2" Grid.Row="2"/>
+
+        </Grid>
+        <ComboBox HorizontalAlignment="Left" Margin="495,10,0,0" VerticalAlignment="Top" Width="228" SelectedIndex="0" SelectionChanged="ComboBox_SelectionChanged">
+            <ComboBoxItem Content="Player versus Player"/>
+            <ComboBoxItem Content="Player versus AI"/>
+            <ComboBoxItem Content="AI versus AI"/>
+        </ComboBox>
+        <CheckBox x:Name="AIToggle" Content="AI has first move?" HorizontalAlignment="Left" Margin="495,37,0,0" VerticalAlignment="Top" RenderTransformOrigin="-1.531,-0.6" Checked="AIToggle_Changed" Unchecked="AIToggle_Changed"/>
     </Grid>
-
 </Window>

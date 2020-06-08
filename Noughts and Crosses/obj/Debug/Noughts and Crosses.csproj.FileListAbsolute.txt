@@ -12,3 +12,4 @@ C:\Users\Walks\source\repos\Noughts and Crosses\Noughts and Crosses\obj\Debug\No
 C:\Users\Walks\source\repos\Noughts and Crosses\Noughts and Crosses\obj\Debug\Noughts and Crosses.csproj.GenerateResource.cache
 C:\Users\Walks\source\repos\Noughts and Crosses\Noughts and Crosses\obj\Debug\Noughts and Crosses.exe
 C:\Users\Walks\source\repos\Noughts and Crosses\Noughts and Crosses\obj\Debug\Noughts and Crosses.pdb
+C:\Users\Walks\source\repos\Noughts and Crosses\Noughts and Crosses\obj\Debug\GeneratedInternalTypeHelper.g.cs

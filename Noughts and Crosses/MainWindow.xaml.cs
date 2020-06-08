@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -31,7 +32,12 @@ namespace Noughts_and_Crosses
         /// <summary>
         /// True if AI should move first
         /// </summary>
-        private bool mAIFirst;
+        private bool mAIFirst = false;
+
+        /// <summary>
+        /// Holds the information about which game is being played (PVP or PVE etc)
+        /// </summary>
+        private GameTypes mGameType = GameTypes.PlayerVersusPlayer;
         #endregion
 
         #region Constructor
@@ -43,7 +49,7 @@ namespace Noughts_and_Crosses
         {
             InitializeComponent();
 
-            NewGame();
+            NewGameAsync();
         }
 
         #endregion
@@ -51,7 +57,7 @@ namespace Noughts_and_Crosses
         /// <summary>
         /// Starts a new game and clears values back to default
         /// </summary>
-        private void NewGame()
+        private async Task NewGameAsync()
         {
             // Create a new blank array of free cells
             mResults = new MarkType[3, 3];
@@ -79,16 +85,29 @@ namespace Noughts_and_Crosses
             // Make sure game isn't finished
             mGameEnded = false;
 
-            // Toggle AI first move
-            mAIFirst = false;
-
             if (mAIFirst)
             {
-                Move bestMove = FindBestMove(mResults);
+                Move bestMove = FindBestMove(mResults, true);
                 mResults[bestMove.col, bestMove.row] = MarkType.Nought;
                 var AIMoveButton = Container.Children.Cast<Button>().First(ButtonToMove => Grid.GetRow(ButtonToMove) == bestMove.row && Grid.GetColumn(ButtonToMove) == bestMove.col);
                 AIMoveButton.Foreground = Brushes.Red;
                 AIMoveButton.Content = "O";
+            }
+            else if (mGameType == GameTypes.AIVersusAI)
+            {
+                while (!mGameEnded)
+                {
+                    Move bestMove = FindBestMove(mResults, !mPlayer1Turn);
+                    mResults[bestMove.col, bestMove.row] = !mPlayer1Turn ? MarkType.Nought : MarkType.Cross;
+                    var AIMoveButton = Container.Children.Cast<Button>().First(ButtonToMove => Grid.GetRow(ButtonToMove) == bestMove.row && Grid.GetColumn(ButtonToMove) == bestMove.col);
+                    if (!mPlayer1Turn)           
+                        AIMoveButton.Foreground = Brushes.Red;
+                    AIMoveButton.Content = mPlayer1Turn ? "X" : "O";
+
+                    mPlayer1Turn = !mPlayer1Turn;
+                    CheckForWinner();
+                    await Task.Delay(500);
+                }
             }
         }
 
@@ -102,7 +121,7 @@ namespace Noughts_and_Crosses
             // Start a new game on click if game is ended
             if (mGameEnded)
             {
-                NewGame();
+                NewGameAsync();
                 return;
             }
 
@@ -134,9 +153,9 @@ namespace Noughts_and_Crosses
             CheckForWinner();
 
             // Evaluate board if AI turn
-            if (!mPlayer1Turn && !mGameEnded)
+            if (!mPlayer1Turn && !mGameEnded && mGameType == GameTypes.PlayerVersusAI)
             {
-                Move bestMove = FindBestMove(mResults);
+                Move bestMove = FindBestMove(mResults, true);
                 mResults[bestMove.col, bestMove.row] = MarkType.Nought;
                 var AIMoveButton = Container.Children.Cast<Button>().First(ButtonToMove => Grid.GetRow(ButtonToMove) == bestMove.row && Grid.GetColumn(ButtonToMove) == bestMove.col);
                 AIMoveButton.Foreground = Brushes.Red;
@@ -304,9 +323,9 @@ namespace Noughts_and_Crosses
         /// <param name="depth"></param>
         /// <param name="IsMax"></param>
         /// <returns></returns>
-        private int MiniMax(MarkType[,] board, int depth, Boolean IsMax)
+        private int MiniMax(MarkType[,] board, int depth, bool IsMax, bool IsNought)
         {
-            int score = EvaluateBoard(board, true);
+            int score = EvaluateBoard(board, !mPlayer1Turn);
 
             // Return score if maximizer has won
             if (score == 10)
@@ -336,10 +355,10 @@ namespace Noughts_and_Crosses
                         if (board[i, j] == MarkType.Free)
                         {
                             // Simulate move
-                            board[i, j] = MarkType.Nought;
+                            board[i, j] = IsNought ? MarkType.Nought : MarkType.Cross;
 
                             // Call minimax recursively and choose maximum value
-                            best = Math.Max(best, MiniMax(board, depth + 1, !IsMax));
+                            best = Math.Max(best, MiniMax(board, depth + 1, !IsMax, IsNought));
 
                             // Undo move
                             board[i, j] = MarkType.Free;
@@ -362,10 +381,10 @@ namespace Noughts_and_Crosses
                         if (board[i,j] == MarkType.Free)
                         {
                             // Simulate move
-                            board[i, j] = MarkType.Cross;
+                            board[i, j] = IsNought ? MarkType.Cross : MarkType.Nought;
 
                             // Call minimax recursively and choose minimum value
-                            best = Math.Min(best, MiniMax(board, depth + 1, !IsMax));
+                            best = Math.Min(best, MiniMax(board, depth + 1, !IsMax, IsNought));
 
                             // Undo move
                             board[i, j] = MarkType.Free;
@@ -381,7 +400,7 @@ namespace Noughts_and_Crosses
         /// </summary>
         /// <param name="board"></param>
         /// <returns></returns>
-        private Move FindBestMove(MarkType[,] board)
+        private Move FindBestMove(MarkType[,] board, bool IsNought)
         {
             int bestVal = -1000;
             Move bestMove = new Move
@@ -398,9 +417,9 @@ namespace Noughts_and_Crosses
                 {
                     if (board[i,j] == MarkType.Free)
                     {
-                        board[i, j] = MarkType.Nought;
+                        board[i, j] = IsNought ? MarkType.Nought : MarkType.Cross;
 
-                        int moveVal = MiniMax(board, 0, false);
+                        int moveVal = MiniMax(board, 0, false, !mPlayer1Turn);
 
                         board[i, j] = MarkType.Free;
 
@@ -415,6 +434,30 @@ namespace Noughts_and_Crosses
             }
 
             return bestMove;
+        }
+        /// <summary>
+        /// Event ran when combo box for game type changes
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var combobox = (ComboBox)sender;
+
+            mGameType = (GameTypes)combobox.SelectedIndex;
+            NewGameAsync();
+        }
+
+        /// <summary>
+        /// AI Toggle checkbox code
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void AIToggle_Changed(object sender, RoutedEventArgs e)
+        {
+            var checkbox = (CheckBox)sender;
+            mAIFirst = (bool)checkbox.IsChecked;
+            NewGameAsync();
         }
     }
 }
