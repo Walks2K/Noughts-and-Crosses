@@ -126,6 +126,10 @@ namespace Noughts_and_Crosses
         /// <param name="e">The events of the click</param>
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            // Check if game type should allow player input
+            if (mGameType == GameTypes.AIVersusAI)
+                return;
+
             // Start a new game on click if game is ended
             if (mGameEnded)
             {
