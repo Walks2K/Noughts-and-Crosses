@@ -116,6 +116,8 @@ namespace Noughts_and_Crosses
                     CheckForWinner();
                     await Task.Delay(500);
                 }
+
+                NewGameAsync();
             }
         }
 
@@ -335,7 +337,7 @@ namespace Noughts_and_Crosses
         /// <param name="depth"></param>
         /// <param name="IsMax"></param>
         /// <returns></returns>
-        private int MiniMax(MarkType[,] board, int depth, bool IsMax, bool IsNought)
+        private int MiniMax(MarkType[,] board, int depth, bool IsMax, bool IsNought, int Alpha, int Beta)
         {
             int score = EvaluateBoard(board, !mPlayer1Turn);
 
@@ -356,7 +358,7 @@ namespace Noughts_and_Crosses
             // Check if maximizers move
             if (IsMax)
             {
-                int best = -1000;
+                int Max = -1000;
 
                 // Traverse all cells
                 for (int i = 0; i < 3; i++)
@@ -370,19 +372,26 @@ namespace Noughts_and_Crosses
                             board[i, j] = IsNought ? MarkType.Nought : MarkType.Cross;
 
                             // Call minimax recursively and choose maximum value
-                            best = Math.Max(best, MiniMax(board, depth + 1, !IsMax, IsNought));
+                            Max = Math.Max(Max, MiniMax(board, depth + 1, !IsMax, IsNought, Alpha, Beta));
 
                             // Undo move
                             board[i, j] = MarkType.Free;
+
+                            // If best move is optimal then return it (alpha-beta pruning)
+                            if (Max >= Beta)
+                                return Max;
+
+                            if (Max > Alpha)
+                                Alpha = Max;
                         }
                     }
                 }
-                return best;
+                return Max;
             }
             // Minimizers move
             else
             {
-                int best = 1000;
+                int Min = 1000;
 
                 // Traverse all cells
                 for (int i = 0; i < 3; i++)
@@ -396,14 +405,20 @@ namespace Noughts_and_Crosses
                             board[i, j] = IsNought ? MarkType.Cross : MarkType.Nought;
 
                             // Call minimax recursively and choose minimum value
-                            best = Math.Min(best, MiniMax(board, depth + 1, !IsMax, IsNought));
+                            Min = Math.Min(Min, MiniMax(board, depth + 1, !IsMax, IsNought, Alpha, Beta));
 
                             // Undo move
                             board[i, j] = MarkType.Free;
+
+                            if (Min <= Alpha)
+                                return Min;
+
+                            if (Min < Beta)
+                                Beta = Min;
                         }
                     }
                 }
-                return best;
+                return Min;
             }
         }
 
@@ -434,7 +449,7 @@ namespace Noughts_and_Crosses
                         board[i, j] = IsNought ? MarkType.Nought : MarkType.Cross;
 
                         // Run min max until best move is found
-                        int moveVal = MiniMax(board, 0, false, !mPlayer1Turn);
+                        int moveVal = MiniMax(board, 0, false, !mPlayer1Turn, -10, 10);
 
                         // Undo move
                         board[i, j] = MarkType.Free;
